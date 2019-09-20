@@ -1,0 +1,47 @@
+[
+  {
+    "id": 0,
+    "guid": "{5AA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": "part 2 backup",
+    "duration": "200d",
+    "start": "Mon 2/27/12",
+    "finish": "Fri 11/30/12",
+    "resourceNames": ""
+  },
+  {
+    "id": 1,
+    "guid": "{5BA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Phase 1 - Strategic Plan",
+    "duration": "52d",
+    "start": "Mon 2/27/12",
+    "finish": "Tue 5/8/12",
+    "resourceNames": ""
+  },
+  {
+    "id": 2,
+    "guid": "{5CA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Self-Assessment",
+    "duration": "4d",
+    "start": "Mon 2/27/12",
+    "finish": "Thu 3/1/12",
+    "resourceNames": ""
+  },
+  {
+    "id": 3,
+    "guid": "{5DA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Define business vision",
+    "duration": "1d",
+    "start": "Mon 2/27/12",
+    "finish": "Mon 2/27/12",
+    "resourceNames": "Katie Jordan,Robin Counts"
+  },
+  {
+    "id": 4,
+    "guid": "{5EA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Identify available skills, information and support",
+    "duration": "2d",
+    "start": "Tue 2/28/12",
+    "finish": "Wed 2/29/12",
+    "resourceNames": "Katie Jordan"
+  }
+]
