@@ -6,6 +6,7 @@
     "duration": "200d",
     "start": "Mon 2/27/12",
     "finish": "Fri 11/30/12",
+    "hasChild": true,
     "resourceNames": ""
   },
   {
@@ -15,6 +16,8 @@
     "duration": "52d",
     "start": "Mon 2/27/12",
     "finish": "Tue 5/8/12",
+    "hasChild": true,
+    "parentGuid": "{5AA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
     "resourceNames": ""
   },
   {
@@ -24,6 +27,8 @@
     "duration": "4d",
     "start": "Mon 2/27/12",
     "finish": "Thu 3/1/12",
+    "hasChild": true,
+    "parentGuid": "{5BA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
     "resourceNames": ""
   },
   {
@@ -33,6 +38,8 @@
     "duration": "1d",
     "start": "Mon 2/27/12",
     "finish": "Mon 2/27/12",
+    "hasChild": false,
+    "parentGuid": "{5CA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
     "resourceNames": "Katie Jordan,Robin Counts"
   },
   {
@@ -42,6 +49,41 @@
     "duration": "2d",
     "start": "Tue 2/28/12",
     "finish": "Wed 2/29/12",
+    "hasChild": false,
+    "parentGuid": "{5CA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
     "resourceNames": "Katie Jordan"
+  },
+  {
+    "id": 5,
+    "guid": "{5FA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Decide whether to proceed",
+    "duration": "1d",
+    "start": "Thu 3/1/12",
+    "finish": "Thu 3/1/12",
+    "hasChild": false,
+    "parentGuid": "{5CA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "resourceNames": "Pavel Bansky,Jill Frank"
+  },
+  {
+    "id": 6,
+    "guid": "{60A3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Define the Opportunity",
+    "duration": "27d",
+    "start": "Fri 3/2/12",
+    "finish": "Mon 4/9/12",
+    "hasChild": true,
+    "parentGuid": "{5BA3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "resourceNames": ""
+  },
+  {
+    "id": 7,
+    "guid": "{61A3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "name": " Research the market and competition",
+    "duration": "1d",
+    "start": "Fri 3/2/12",
+    "finish": "Fri 3/2/12",
+    "hasChild": false,
+    "parentGuid": "{60A3F2C5-A3FF-E611-BE25-14DAE9111DA6}",
+    "resourceNames": "Alex Darrow,Junmin Hao,Bonnie Kearney"
   }
 ]

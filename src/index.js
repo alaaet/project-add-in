@@ -16,58 +16,7 @@ Office.initialize = reason => {
 var tasks = [];
 function run() {
   getMaxTaskIndex().then(function(maxIndex) {
-    console.log("Max index= " + maxIndex);
-    /*for (let index = 0; index <= maxIndex; index++) {
-      var guid, name, duration, start, finish, resourceNames;
-      getTaskGuid(index)
-        .then(function(taskGuid) {
-          console.log(index + " -task GUID:" + taskGuid);
-          guid = taskGuid;
-          getTaskAttribute(taskGuid, Office.ProjectTaskFields.Name).then(
-            function(value) {
-              name = value;
-            }
-          );
-          getTaskAttribute(taskGuid, Office.ProjectTaskFields.Duration).then(
-            function(value) {
-              duration = value;
-            }
-          );
-          getTaskAttribute(taskGuid, Office.ProjectTaskFields.Start).then(
-            function(value) {
-              start = value;
-            }
-          );
-          getTaskAttribute(taskGuid, Office.ProjectTaskFields.Finish).then(
-            function(value) {
-              finish = value;
-            }
-          );
-          getTaskAttribute(
-            taskGuid,
-            Office.ProjectTaskFields.ResourceNames
-          ).then(function(value) {
-            resourceNames = value;
-          });
-        })
-        .then(function() {
-          var task = new Task(
-            index,
-            guid,
-            name,
-            duration,
-            start,
-            finish,
-            resourceNames
-          );
-          tasks.push(task);
-          if (index == maxIndex) {
-            // SEND THE DATA OF ALL TASKS TO THE API
-            submitData(tasks);
-          }
-        });
-    }*/
-
+    //console.log("Max index= " + maxIndex);
     for (let index = 0; index <= maxIndex; index++) {
       getTaskObject(index, maxIndex);
     }
@@ -109,7 +58,6 @@ function getTaskAttribute(taskGuid, targetField) {
     if (result.status === Office.AsyncResultStatus.Failed) {
       onError(result.error);
     } else {
-      //console.log(result.value.fieldValue);
       defer.resolve(result.value.fieldValue);
     }
   });
@@ -118,7 +66,7 @@ function getTaskAttribute(taskGuid, targetField) {
 
 // Get all the basic attributes values for a specific task.
 function getTaskObject(index, maxIndex) {
-  var guid, name, duration, start, finish, resourceNames;
+  var guid, name, duration, start, finish, hasChild, parentGuid, resourceNames;
   getTaskGuid(index).then(function(taskGuid) {
     guid = taskGuid;
     getTaskAttribute(taskGuid, Office.ProjectTaskFields.Name).then(function(
@@ -136,23 +84,40 @@ function getTaskObject(index, maxIndex) {
                   finish = value;
                   getTaskAttribute(
                     taskGuid,
-                    Office.ProjectTaskFields.ResourceNames
+                    Office.ProjectTaskFields.Summary
                   ).then(function(value) {
-                    resourceNames = value;
-                    var task = new Task(
-                      index,
-                      guid,
-                      name,
-                      duration,
-                      start,
-                      finish,
-                      resourceNames
-                    );
-                    //console.log(JSON.stringify(task));
-                    tasks.push(task);
-                    if (index == maxIndex) {
-                      submitData(tasks);
-                    }
+                    hasChild = value;
+                    getTaskAttribute(
+                      taskGuid,
+                      Office.ProjectTaskFields.ResourceNames
+                    ).then(function(value) {
+                      resourceNames = value;
+                      // Get the parent task
+                      var jump = false;
+                      for (let i = index - 1; i >= 0; i--) {
+                        if (tasks[i].hasChild) {
+                          if (!jump) {
+                            parentGuid = tasks[i].guid;
+                            break;
+                          } else jump = false;
+                        } else if (hasChild) jump = true;
+                      }
+                      var task = new Task(
+                        index,
+                        guid,
+                        name,
+                        duration,
+                        start,
+                        finish,
+                        hasChild,
+                        parentGuid,
+                        resourceNames
+                      );
+                      tasks.push(task);
+                      if (index == maxIndex) {
+                        submitData(tasks);
+                      }
+                    });
                   });
                 }
               );
@@ -170,7 +135,7 @@ function submitData(tasks) {
     console.dir(JSON.stringify(task));
   });
 
-  // @Anand: here you can make the request to the API
+  // @Anand: here you can make the AJAX request to the API
 }
 
 // SUPPORT FUNCTIONS
