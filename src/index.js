@@ -15,6 +15,7 @@ Office.initialize = reason => {
 };
 var tasks = [];
 function run() {
+  document.getElementById("spinner").style.display = "block";
   getMaxTaskIndex().then(function(maxIndex) {
     //console.log("Max index= " + maxIndex);
     for (let index = 0; index <= maxIndex; index++) {
@@ -68,7 +69,7 @@ function getTaskAttribute(taskGuid, targetField) {
 function getTaskObject(index, maxIndex) {
   var guid, name, duration, start, finish, hasChild, parentGuid, resourceNames;
   getTaskGuid(index).then(function(taskGuid) {
-    guid = taskGuid;
+    guid = taskGuid.replace(/[{}]/g, "");
     getTaskAttribute(taskGuid, Office.ProjectTaskFields.Name).then(function(
       value
     ) {
@@ -115,7 +116,11 @@ function getTaskObject(index, maxIndex) {
                       );
                       tasks.push(task);
                       if (index == maxIndex) {
-                        submitData(tasks);
+                        var completeListOfTasks = tasks;
+                        submitData(completeListOfTasks);
+                        tasks = [];
+                        document.getElementById("spinner").style.display =
+                          "none";
                       }
                     });
                   });
