@@ -3,6 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 $.getScript("../models/task.js", function() {});
+$.getScript("../models/resource.js", function() {});
 
 $(document).ready(() => {
   $("#run").click(run);
@@ -13,15 +14,13 @@ Office.initialize = reason => {
   $("#sideload-msg").hide();
   $("#app-body").show();
 };
+
+// Global variables
 var tasks = [];
+
 function run() {
-  document.getElementById("spinner").style.display = "block";
-  getMaxTaskIndex().then(function(maxIndex) {
-    //console.log("Max index= " + maxIndex);
-    for (let index = 0; index <= maxIndex; index++) {
-      getTaskObject(index, maxIndex);
-    }
-  });
+  submitTasks();
+  submitResourcesAssignments();
 }
 
 // Get the GUID of a task.
@@ -66,7 +65,7 @@ function getTaskAttribute(taskGuid, targetField) {
 }
 
 // Get all the basic attributes values for a specific task.
-function getTaskObject(index, maxIndex) {
+function getTaskObject(index, maxIndex, resources, callback) {
   var guid, name, duration, start, finish, hasChild, parentGuid, resourceNames;
   getTaskGuid(index).then(function(taskGuid) {
     guid = taskGuid.replace(/[{}]/g, "");
@@ -92,6 +91,7 @@ function getTaskObject(index, maxIndex) {
                       taskGuid,
                       Office.ProjectTaskFields.ResourceNames
                     ).then(function(value) {
+                      //console.log( value);
                       resourceNames = value;
                       // Get the parent task
                       var jump = false;
@@ -103,6 +103,18 @@ function getTaskObject(index, maxIndex) {
                           } else jump = false;
                         } else if (hasChild) jump = true;
                       }
+                      // Get resources Guids
+                      var resourcesGuids = [];
+                      var parsedResourcesNames = resourceNames.split(",");
+                      $.each(parsedResourcesNames, function(
+                        index,
+                        resourceName
+                      ) {
+                        $.each(resources, function(index, resource) {
+                          if (resource.name == resourceName)
+                            resourcesGuids.push(resource.guid);
+                        });
+                      });
                       var task = new Task(
                         index,
                         guid,
@@ -112,15 +124,15 @@ function getTaskObject(index, maxIndex) {
                         finish,
                         hasChild,
                         parentGuid,
-                        resourceNames
+                        resourcesGuids
                       );
                       tasks.push(task);
                       if (index == maxIndex) {
                         var completeListOfTasks = tasks;
-                        submitData(completeListOfTasks);
-                        tasks = [];
                         document.getElementById("spinner").style.display =
                           "none";
+                        tasks = [];
+                        callback(completeListOfTasks, resources);
                       }
                     });
                   });
@@ -134,16 +146,115 @@ function getTaskObject(index, maxIndex) {
   });
 }
 
-// Send data to API
-function submitData(tasks) {
-  $.each(tasks, function(index, task) {
-    console.dir(JSON.stringify(task));
+function getMaxResourceIndex() {
+  var defer = $.Deferred();
+  Office.context.document.getMaxResourceIndexAsync(function(result) {
+    if (result.status === Office.AsyncResultStatus.Failed) {
+      onError("getMaxResourceIndex|" + JSON.stringify(result.error));
+    } else {
+      defer.resolve(result.value);
+    }
   });
+  return defer.promise();
+}
 
-  // @Anand: here you can make the AJAX request to the API
+function getResourceByIndex(index) {
+  var defer = $.Deferred();
+  Office.context.document.getResourceByIndexAsync(index, function(result) {
+    if (result.status === Office.AsyncResultStatus.Failed) {
+      onError("getResourceByIndex|" + JSON.stringify(result.error));
+    } else {
+      defer.resolve(result.value);
+    }
+  });
+  return defer.promise();
+}
+
+function getResourceName(resourceGuid) {
+  var defer = $.Deferred();
+  Office.context.document.getResourceFieldAsync(
+    resourceGuid,
+    Office.ProjectResourceFields.Name,
+    function(result) {
+      if (result.status === Office.AsyncResultStatus.Failed) {
+        onError("getResourceName|" + JSON.stringify(result.error));
+      } else {
+        defer.resolve(result.value.fieldValue);
+      }
+    }
+  );
+  return defer.promise();
+}
+
+function constructResources(callback) {
+  getMaxResourceIndex().then(function(maxIndex) {
+    var guid, name;
+    var resources = [];
+    for (let index = 1; index <= maxIndex; index++) {
+      getResourceByIndex(index).then(function(resourceGuid) {
+        getResourceName("" + resourceGuid + "").then(function(resourceName) {
+          guid = resourceGuid.replace(/[{}]/g, "");
+          name = resourceName;
+          var resource = new Resource(index, guid, name, []);
+          resources.push(resource);
+          if (index == maxIndex) callback(resources);
+        });
+      });
+    }
+  });
+}
+
+function GetAllTasksAndRes(callback) {
+  document.getElementById("spinner").style.display = "block";
+  constructResources(function(resources) {
+    getMaxTaskIndex().then(function(maxIndex) {
+      for (let index = 0; index <= maxIndex; index++) {
+        getTaskObject(index, maxIndex, resources, callback);
+      }
+    });
+  });
 }
 
 // SUPPORT FUNCTIONS
 function onError(error) {
   console.log("ERROR: " + error);
+}
+
+/////////////////////////////////////////// API REQUESTS ///////////////////////////////////////////
+// Send tasks to API
+function submitTasks() {
+  GetAllTasksAndRes(function(tasks, resources) {
+    // <visualization>
+    $.each(tasks, function(index, task) {
+      console.dir(JSON.stringify(task));
+    });
+    // </visualization>
+
+    // @Anand: here you can make the AJAX request to the API
+  });
+}
+
+// Send Resources Assignments to API
+function submitResourcesAssignments() {
+  var assignedResources = [];
+  GetAllTasksAndRes(function(tasks, resources) {
+    $.each(resources, function(index, resource) {
+      var tempResource = resource;
+      $.each(tasks, function(index, task) {
+        if (task.resourceGuids.indexOf(resource.guid) > -1) {
+          tempResource.tasksNames.push(task.name);
+        }
+      });
+      assignedResources.push(tempResource);
+    });
+
+    // <visualization>
+    console.dir("THE FOLLOWING ARE THE RESOURCES:");
+    $.each(assignedResources, function(index, resource) {
+      console.dir(JSON.stringify(resource));
+    });
+    // </visualization>
+
+    // @Anand: here you can make the AJAX request to the API
+  });
 }

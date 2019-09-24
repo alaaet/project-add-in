@@ -8,7 +8,7 @@ function Task(
   finish,
   hasChild,
   parentGuid,
-  resourceNames
+  resourceGuids
 ) {
   this.id = id;
   this.guid = guid;
@@ -18,5 +18,5 @@ function Task(
   this.finish = finish;
   this.hasChild = hasChild;
   this.parentGuid = parentGuid;
-  this.resourceNames = resourceNames;
+  this.resourceGuids = resourceGuids;
 }
